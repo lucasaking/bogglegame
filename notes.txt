@@ -1,0 +1,313 @@
+INSTRUCTIONS (START HERE)
+
+
+1. Add a doctest for the WordList.check_word method.
+
+
+2. Run the initial integration tests for the Flask app:
+
+(venv) $ python3 -m unittest test_app.py
+Both should pass—but neither test really checks for anything yet.
+
+
+3. For the homepage, add to the test to check that correct HTML was returned. 
+You don’t to establish that the entire HTML returned matches the entire thing in your test. 
+Instead, find something distinct that appears in this template and check for that.
+
+4. GET CODE REVIEW
+
+
+------------------------------------------------
+
+
+
+5. Making the API and testing it
+
+
+Testing Random Things
+
+
+This can be tricky — since both the game id and the board are random, 
+you can’t test these in your test. But you can test that:
+
+
+
+(WORK ON THIS)
+
+A.) the route returns JSON with a string game id, and a list-of-lists for the board
+B.) the route stores the new game in the games dictionary
+
+
+
+
+
+6. Score Word
+
+Make a new route with a path of /api/score-word. This should accept a POST request with JSON for the game id and the word. It should check if the word is legal:
+
+It should be in the word list
+It sound be findable on the board
+This route should return a JSON response using Flask’s jsonify function.
+
+if not a word: {result: "not-word"}
+if not on board: {result: "not-on-board"}
+if a valid word: {result: "ok"}
+A good way to try this out is in your web browser console. As it turns out, we already put into the HTML template for the page to load axios. So, you can try out your new route using AJAX, like:
+
+await axios.post("/api/score-word", data=...)
+Alternatively, you could test this in Insomnia.
+
+Write A Test For It
+Then, write an integration test in the test_app.py file for this route.
+
+Your test function will need to use the /api/new-game route, since that makes a new game and returns the game id.
+
+One challenge is that the board is randomly chosen, so writing a test to check if a word is on the board would be tricky—unless you can figure out a way to change what the letters are on the board before you try to score the play.
+
+Test all the possible results for /score-word.
+
+
+7. GET CODE REVIEW
+
+----------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#(USE THIS)
+
+#python -m unittest -v test_app.py
+
+
+            #(OTHER EXAMPLES)
+            #python -m unittest test_module1 test_module2
+            #python -m unittest -v test_module
+
+
+4. GET CODE REVIEW
+
+
+
+--------------------------
+(HELPFUL NOTES)
+
+You can make a game like:
+game = BoggleGame()
+
+You score in the game by playing words:
+ |      
+ |          >>> game.play_and_score_word("CAT")
+ |          1
+ |          >>> game.play_and_score_word("HIPPO")
+ |          2
+ |          >>> game.play_and_score_word("OPULENCE")
+ |          11
+ |          >>> game.score
+ |          14
+ |      
+ |      It keeps track of played words, so you can check if a word is a
+ |      duplicate:
+ |      
+ |          >>> game.is_word_not_a_dup("CAT")
+ |          False
+ |          >>> game.is_word_not_a_dup("DOG")
+ |          True
+
+You can check if a word is in the valid word list:
+ |      
+ |          >>> game.is_word_in_word_list("STILL")
+ |          True
+ |          >>> game.is_word_in_word_list("XXX")
+ |          False
+ |      
+ |      The `.check_word_on_board` method has its own tests, below.
+
+
+ check_word_on_board(self, word)
+ |      Can word be found in board? Returns True/False.
+ |      
+ |      Let's make a game and fill the board with a forced example:
+ |      
+ |          >>> game = BoggleGame(board_size=3)
+ |          >>> game.board = ["C","A","T"], ["O", "X", "X"], ["X", "G", "X"]
+ |      
+ |      It searches to find word horizontally, vertically, or diagonally:
+ |      
+ |          >>> game.check_word_on_board("CAT")
+ |          True
+ |      
+ |          >>> game.check_word_on_board("COG")
+ |          True
+ |      
+ |      It cannot use the same tile twice, though:
+ |      
+ |          >>> game.check_word_on_board("TAT")
+ |          False
+
+
+
+
+class WordList(builtins.object)
+ |  WordList(dict_path='dictionary.txt')
+ |  
+ |  Searchable list of words from a file.
+ |  
+ |  This isn't Boggle-specific (you could use it for Scrabble or other word
+ |  games), so there's no Boggle-specific logic in it.
+ |  
+ |  Methods defined here:
+ |  
+ |  __init__(self, dict_path='dictionary.txt')
+ |      Create a word list from a dictionary file on disk.
+ |      
+ |      >>> wl = WordList("test_dictionary.txt")
+ |      >>> wl.words == {'CAT', 'DOG'}
+ |      True
+ |  
+ |  __repr__(self)
+ |      Return repr(self).
+ |  
+ |  check_word(self, word)
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ------------------------------
+
+ (CURRENT DOC TESTS)
+
+ python3 -m doctest -v wordlist.py
+
+Trying:
+    wl = WordList("test_dictionary.txt")
+Expecting nothing
+ok
+Trying:
+    wl.words == {'CAT', 'DOG'}
+Expecting:
+    True
+ok
+5 items had no tests:
+    wordlist
+    wordlist.WordList
+    wordlist.WordList.__repr__
+    wordlist.WordList._read_dict
+    wordlist.WordList.check_word
+1 items passed all tests:
+   2 tests in wordlist.WordList.__init__
+2 tests in 6 items.
+2 passed and 0 failed.
+
+
+-------------------------
+
+
+python3 -m doctest -v boggle.py
+
+
+Trying:
+    game = BoggleGame()
+Expecting nothing
+ok
+Trying:
+    game.play_and_score_word("CAT")
+Expecting:
+    1
+ok
+Trying:
+    game.play_and_score_word("HIPPO")
+Expecting:
+    2
+ok
+Trying:
+    game.play_and_score_word("OPULENCE")
+Expecting:
+    11
+ok
+Trying:
+    game.score
+Expecting:
+    14
+ok
+Trying:
+    game.is_word_not_a_dup("CAT")
+Expecting:
+    False
+ok
+Trying:
+    game.is_word_not_a_dup("DOG")
+Expecting:
+    True
+ok
+Trying:
+    game.is_word_in_word_list("STILL")
+Expecting:
+    True
+ok
+Trying:
+    game.is_word_in_word_list("XXX")
+Expecting:
+    False
+ok
+Trying:
+    game = BoggleGame(board_size=3)
+Expecting nothing
+ok
+Trying:
+    game.board = ["C","A","T"], ["O", "X", "X"], ["X", "G", "X"]
+Expecting nothing
+ok
+Trying:
+    game.check_word_on_board("CAT")
+Expecting:
+    True
+ok
+Trying:
+    game.check_word_on_board("COG")
+Expecting:
+    True
+ok
+Trying:
+    game.check_word_on_board("TAT")
+Expecting:
+    False
+ok
+8 items had no tests:
+    boggle
+    boggle.BoggleGame
+    boggle.BoggleGame.__repr__
+    boggle.BoggleGame._find_from
+    boggle.BoggleGame.get_random_board
+    boggle.BoggleGame.is_word_in_word_list
+    boggle.BoggleGame.is_word_not_a_dup
+    boggle.BoggleGame.play_and_score_word
+2 items passed all tests:
+   9 tests in boggle.BoggleGame.__init__
+   5 tests in boggle.BoggleGame.check_word_on_board
+14 tests in 10 items.
+14 passed and 0 failed.
+Test passed.
+
+
